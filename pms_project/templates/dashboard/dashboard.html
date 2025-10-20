@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="row mb-4">
+    {% if total_projects %}
+    <div class="col-md-3">
+        <div class="card text-white bg-primary p-3">
+            <h5>Total Projects</h5>
+            <h3>{{ total_projects }}</h3>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if total_tasks %}
+    <div class="col-md-3">
+        <div class="card text-white bg-success p-3">
+            <h5>Total Tasks</h5>
+            <h3>{{ total_tasks }}</h3>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if total_users %}
+    <div class="col-md-3">
+        <div class="card text-white bg-warning p-3">
+            <h5>Total Users</h5>
+            <h3>{{ total_users }}</h3>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<h4>Tasks by Status</h4>
+<canvas id="tasksChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('tasksChart').getContext('2d');
+    const tasksData = {
+        labels: [{% for item in tasks_by_status %}'{{ item.status }}',{% endfor %}],
+        datasets: [{
+            label: 'Tasks Count',
+            data: [{% for item in tasks_by_status %}{{ item.count }},{% endfor %}],
+            backgroundColor: ['#007bff','#28a745','#ffc107'],
+        }]
+    };
+    const tasksChart = new Chart(ctx, {
+        type: 'bar',
+        data: tasksData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Tasks by Status' }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

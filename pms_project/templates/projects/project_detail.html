@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Project Details | PMS{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ project.name }}</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Description:</strong> {{ project.description }}</p>
+        <p><strong>Deadline:</strong> {{ project.deadline }}</p>
+        <p><strong>Manager:</strong> {{ project.manager.username }}</p>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">Back to List</a>
+        {% if user == project.manager or user.role == 'admin' %}
+            <a href="{% url 'projects:project_update' project.pk %}" class="btn btn-warning">Edit</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
