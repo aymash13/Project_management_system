@@ -1,63 +1,85 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Dashboard{% endblock %}
-{% block content %}
-<h2>Dashboard</h2>
 
+{% block content %}
 <div class="row mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Dashboard</h3>
+
+        {% if user.role == 'manager' %}
+            <div>
+                <a href="{% url 'projects:project_create' %}" class="btn btn-primary me-2">
+                    + New Project
+                </a>
+                <a href="{% url 'tasks:task_create' %}" class="btn btn-success">
+                    + New Task
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
     {% if total_projects %}
     <div class="col-md-3">
-        <div class="card text-white bg-primary p-3">
-            <h5>Total Projects</h5>
-            <h3>{{ total_projects }}</h3>
+        <div class="card text-white bg-primary p-3 shadow-sm">
+            <h6 class="fw-light">Total Projects</h6>
+            <h3 class="fw-bold">{{ total_projects }}</h3>
         </div>
     </div>
     {% endif %}
 
     {% if total_tasks %}
     <div class="col-md-3">
-        <div class="card text-white bg-success p-3">
-            <h5>Total Tasks</h5>
-            <h3>{{ total_tasks }}</h3>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if total_users %}
-    <div class="col-md-3">
-        <div class="card text-white bg-warning p-3">
-            <h5>Total Users</h5>
-            <h3>{{ total_users }}</h3>
+        <div class="card text-white bg-success p-3 shadow-sm">
+            <h6 class="fw-light">Total Tasks</h6>
+            <h3 class="fw-bold">{{ total_tasks }}</h3>
         </div>
     </div>
     {% endif %}
 </div>
 
-<h4>Tasks by Status</h4>
-<canvas id="tasksChart" width="400" height="200"></canvas>
+{% if tasks_by_status %}
+    <h5 class="mt-2">Task Status Overview</h5>
+    <canvas id="tasksChart" width="400" height="200"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('tasksChart').getContext('2d');
-    const tasksData = {
-        labels: [{% for item in tasks_by_status %}'{{ item.status }}',{% endfor %}],
-        datasets: [{
-            label: 'Tasks Count',
-            data: [{% for item in tasks_by_status %}{{ item.count }},{% endfor %}],
-            backgroundColor: ['#007bff','#28a745','#ffc107'],
-        }]
-    };
-    const tasksChart = new Chart(ctx, {
-        type: 'bar',
-        data: tasksData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: 'Tasks by Status' }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('tasksChart').getContext('2d');
+
+        const labels = [
+            {% for item in tasks_by_status %}
+                "{{ item.status|capfirst }}",
+            {% endfor %}
+        ];
+
+        const dataValues = [
+            {% for item in tasks_by_status %}
+                {{ item.count }},
+            {% endfor %}
+        ];
+
+        const barColors = ['#0d6efd', '#ffc107', '#198754'];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: barColors.slice(0, labels.length),
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Tasks by Status' }
+                }
             }
-        }
-    });
-</script>
+        });
+    </script>
+{% else %}
+    <div class="alert alert-info">No task status data available.</div>
+{% endif %}
 
 {% endblock %}

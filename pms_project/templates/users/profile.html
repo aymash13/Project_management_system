@@ -3,23 +3,40 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center mt-4">
     <div class="col-md-6">
-        <h2>Profile</h2>
-        <table class="table table-bordered">
-            <tr>
-                <th>Username</th>
-                <td>{{ user.username }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <th>Role</th>
-                <td>{{ user.role }}</td>
-            </tr>
-        </table>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Profile</h4>
+            </div>
+
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th>Username:</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Role:</th>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ user.role|capfirst }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card-footer text-center">
+                <a href="{% url 'users:logout' %}" class="btn btn-danger btn-sm">Logout</a>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

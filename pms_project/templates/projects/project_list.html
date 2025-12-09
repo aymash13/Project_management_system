@@ -1,23 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}Projects | PMS{% endblock %}
+
 {% block content %}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Projects</h2>
-    {% if user.role in 'manager admin' %}
+
+    {% if user.role == 'manager' %}
         <a href="{% url 'projects:project_create' %}" class="btn btn-primary">+ Create Project</a>
     {% endif %}
 </div>
 
 {% if projects %}
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
             <tr>
                 <th>Project Name</th>
                 <th>Manager</th>
                 <th>Deadline</th>
-                <th>Actions</th>
+                <th width="180">Actions</th>
             </tr>
         </thead>
+
         <tbody>
         {% for project in projects %}
             <tr>
@@ -26,7 +30,8 @@
                 <td>{{ project.deadline }}</td>
                 <td>
                     <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-sm btn-info">View</a>
-                    {% if user == project.manager or user.role == 'admin' %}
+
+                    {% if user == project.manager %}
                         <a href="{% url 'projects:project_update' project.pk %}" class="btn btn-sm btn-warning">Edit</a>
                     {% endif %}
                 </td>
@@ -35,6 +40,7 @@
         </tbody>
     </table>
 {% else %}
-    <p>No projects found.</p>
+    <div class="alert alert-info">No projects found.</div>
 {% endif %}
+
 {% endblock %}

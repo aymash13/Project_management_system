@@ -1,20 +1,42 @@
 {% extends 'base.html' %}
 {% block title %}Task Details{% endblock %}
+
 {% block content %}
-<h2>{{ task.title }}</h2>
-<p><strong>Project:</strong> {{ task.project.name }}</p>
-<p><strong>Assigned To:</strong> {% if task.assigned_to %}{{ task.assigned_to.username }}{% else %}Unassigned{% endif %}</p>
-<p><strong>Status:</strong> {{ task.status|capfirst }}</p>
-<p><strong>Deadline:</strong> {{ task.deadline }}</p>
-<p><strong>Description:</strong> {{ task.description }}</p>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
 
-{% if user.role.lower in 'admin manager' or task.assigned_to == user %}
-  <a href="{% url 'tasks:task_update' task.pk %}" class="btn btn-warning">Edit</a>
-{% endif %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ task.title }}</h5>
+            </div>
 
-{% if user.role.lower in 'admin manager' %}
-  <a href="{% url 'tasks:task_delete' task.pk %}" class="btn btn-danger">Delete</a>
-{% endif %}
+            <div class="card-body">
+                <p><strong>Project:</strong> {{ task.project.name }}</p>
+                <p><strong>Assigned To:</strong>
+                    {% if task.assigned_to %}
+                        {{ task.assigned_to.username }}
+                    {% else %}
+                        Unassigned
+                    {% endif %}
+                </p>
+                <p><strong>Status:</strong> {{ task.status|capfirst }}</p>
+                <p><strong>Deadline:</strong> {{ task.deadline }}</p>
+                <p><strong>Description:</strong> {{ task.description }}</p>
+            </div>
 
-<a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">Back</a>
+            <div class="card-footer d-flex gap-2">
+                
+                {% if user.role == 'manager' and user == task.project.manager %}
+                    <a href="{% url 'tasks:task_update' task.pk %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'tasks:task_delete' task.pk %}" class="btn btn-danger">Delete</a>
+                {% elif user.role == 'employee' and user == task.assigned_to %}
+                    <a href="{% url 'tasks:task_update' task.pk %}" class="btn btn-warning">Update Status</a>
+                {% endif %}
+                
+                <a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">Back</a>
+            </div>
+
+        </div>
+    </div>
+</div>
 {% endblock %}

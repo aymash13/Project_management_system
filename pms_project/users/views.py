@@ -1,52 +1,47 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .models import CustomUser
+from django.shortcuts import render, redirect
 from django.contrib import messages
+from .models import CustomUser
+from .forms import RegisterForm
 
-# Login view
+
+# Login View
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user:
+    next_page = request.GET.get("next", "dashboard:dashboard")
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            return redirect('dashboard:dashboard')  # redirect to dashboard after login
+            return redirect(next_page)
         else:
-            messages.error(request, "Invalid credentials")
-    return render(request, 'users/login.html')
+            messages.error(request, "Invalid Credentials")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'users/login.html', {'form': form})
 
-
-# Register view
+# Register View
 def register_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        role = request.POST['role']
-        if CustomUser.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
-        else:
-            user = CustomUser.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                role=role
-            )
-            messages.success(request, "Registration successful")
-            return redirect('users:login')  # redirect to login after registration
-    return render(request, 'users/register.html')
+    if request.user.is_authenticated:
+        return redirect('dashboard:dashboard')  # already logged in
+    form = RegisterForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Registration successful")
+        return redirect('users:login')
+    return render(request, 'users/register.html', {'form': form})
 
 
-# Profile view
 @login_required
 def profile_view(request):
-    return render(request, 'users/profile.html', {'user': request.user})
+    return render(request, "users/profile.html", {'user': request.user})
 
 
-# Logout view
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('users:login')  # redirect to login after logout
+    messages.success(request, "Logged out successfully")
+    return redirect("users:login")

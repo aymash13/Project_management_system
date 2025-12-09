@@ -1,10 +1,8 @@
-# tasks/forms.py
 from django import forms
 from .models import Task
 from users.models import CustomUser
-from projects.models import Project
 
-# Full form for Manager/Admin
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
@@ -13,12 +11,20 @@ class TaskForm(forms.ModelForm):
             'deadline': forms.DateInput(attrs={'type': 'date'})
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Show only employees in "assigned_to"
-        self.fields['assigned_to'].queryset = CustomUser.objects.filter(role='employee')
 
-# Form for Employee to only update status
+        qs = CustomUser.objects.filter(role='employee')
+
+        if user and user.role == "manager":
+            qs = CustomUser.objects.filter(manager=user)
+
+        if self.instance.pk and self.instance.project:
+            qs = self.instance.project.manager.team_members.all()
+
+        self.fields['assigned_to'].queryset = qs
+
+
 class EmployeeTaskStatusForm(forms.ModelForm):
     class Meta:
         model = Task
