@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import CustomUser
-from .forms import RegisterForm
+from .forms import RegisterForm, ProfileUpdateForm
 
 
 # Login View
@@ -45,3 +45,19 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Logged out successfully")
     return redirect("users:login")
+
+
+@login_required
+def profile_update(request):
+    user = request.user
+
+    if request.method == "POST":
+        form = ProfileUpdateForm(request.POST, instance=user, user=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect("users:profile")
+    else:
+        form = ProfileUpdateForm(instance=user, user=user)
+
+    return render(request, "users/profile_update.html", {'form': form})

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Edit Profile</h4>
+            </div>
+
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <a href="{% url 'users:profile' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

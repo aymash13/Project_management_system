@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Profile{% endblock %}
 
 {% block content %}
@@ -17,23 +16,45 @@
                         <th>Username:</th>
                         <td>{{ user.username }}</td>
                     </tr>
+
                     <tr>
                         <th>Email:</th>
                         <td>{{ user.email }}</td>
                     </tr>
+
                     <tr>
                         <th>Role:</th>
                         <td>
-                            <span class="badge bg-info text-dark">
-                                {{ user.role|capfirst }}
-                            </span>
+                            <span class="badge bg-info text-dark">{{ user.role|capfirst }}</span>
                         </td>
                     </tr>
+
+                    {% if user.role == 'employee' %}
+                    <tr>
+                        <th>Manager:</th>
+                        <td>
+                            {% if user.manager %}
+                                {{ user.manager.username }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
                 </table>
             </div>
 
             <div class="card-footer text-center">
-                <a href="{% url 'users:logout' %}" class="btn btn-danger btn-sm">Logout</a>
+
+                {% if user.role == 'employee' %}
+                <a href="{% url 'users:profile_update' %}" class="btn btn-primary btn-sm">
+                    Edit Profile
+                </a>
+                {% endif %}
+
+                <a href="{% url 'users:logout' %}" class="btn btn-danger btn-sm">
+                    Logout
+                </a>
             </div>
         </div>
 
